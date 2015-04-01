@@ -16,6 +16,8 @@ from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
 from socketio.mixins import BroadcastMixin
 
+from callback import WebCallback
+
 here = lambda *x: os.path.join(os.path.dirname(__file__), *x)
 
 
@@ -114,9 +116,37 @@ class DeviceResource(Resource):
             getattr(dev, action)()
         return serialize(dev)
 
+class DeviceCallbackResource(Resource):
 
+    def get(self, name):
+        dev = get_device(name)
+        cb = dev.restCallback
+        if cb is None:
+            return {}
+        else:
+            return {'url': cb.url,
+                    'user': cb.user}
+
+    def post(self, name):
+        dev = get_device(name)
+        
+        user = (request.json or {}).get('user', (
+            request.values or {}).get('user', None))
+        password = (request.json or {}).get('password', (
+            request.values or {}).get('password', None))
+        url = (request.json or {}).get('url', (
+            request.values or {}).get('url', None))
+        
+        cb = WebCallback(dev,url,user,password)
+        dev.registerCallback(cb)
+
+        return {'url': cb.url,
+                'user': cb.user}
+        
+        
 api.add_resource(EnvironmentResource, '/api/environment')
 api.add_resource(DeviceResource, '/api/device/<string:name>')
+api.add_resource(DeviceCallbackResource, '/api/device/<string:name>/callback')
 
 
 class SocketNamespace(BaseNamespace):

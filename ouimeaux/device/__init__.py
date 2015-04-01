@@ -23,6 +23,7 @@ class Device(object):
         self._config = deviceParser.parseString(xml.content).device
         sl = self._config.serviceList
         self.services = {}
+        self._restCallback = None
         for svc in sl.service:
             svcname = svc.get_serviceType().split(':')[-2]
             if svcname != "deviceevent":
@@ -82,6 +83,24 @@ class Device(object):
     @property
     def serialnumber(self):
         return self._config.get_serialNumber()
+
+    @property
+    def restCallback(self):
+        return self._restCallback
+
+    def registerCallback(self,cb):
+        if self._restCallback is None:
+            self.register_listener(self._handleCallback)
+            print 'registered callback'
+        else:
+            print 'calback alreadt redigetred'
+        self._restCallback = cb
+        print 'done'
+        
+    def _handleCallback(self,state):
+        if not self._restCallback is None:
+            self._restCallback.doCallback(state)
+        
 
 
 def test():
