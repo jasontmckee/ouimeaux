@@ -143,7 +143,11 @@ class DeviceCallbackResource(Resource):
         return {'url': cb.url,
                 'user': cb.user}
         
-        
+    def delete(self, name):
+        dev = get_device(name)
+        dev.registerCallback(None)
+        return {}
+    
 api.add_resource(EnvironmentResource, '/api/environment')
 api.add_resource(DeviceResource, '/api/device/<string:name>')
 api.add_resource(DeviceCallbackResource, '/api/device/<string:name>/callback')
