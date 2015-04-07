@@ -93,7 +93,7 @@ class Device(object):
             self.register_listener(self._handleCallback)
             print 'registered callback'
         else:
-            print 'calback alreadt redigetred'
+            print 'callback already registered'
         self._restCallback = cb
         print 'done'
         
